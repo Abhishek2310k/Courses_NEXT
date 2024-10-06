@@ -1,0 +1,1 @@
+- currently read operation on cards is done need to perform update and delete operation
