@@ -34,7 +34,7 @@ const Course_card: React.FC<{ course: Course }> = ({
           >
             details
           </Link>
-          {/* <DeleteCourseButton id={course._id}/> */}
+          <DeleteCourseButton id={course._id}/>
         </div>
       </div>
     </div>
