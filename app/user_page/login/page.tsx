@@ -1,27 +1,59 @@
-"use client"
-import { useState } from "react"
+"use client" 
+import { User } from "@/app/Interface/interfaces";
 import axios from "axios";
+import { useState } from "react";
+import { useAppContext } from "@/app/context";
 import { useRouter } from "next/navigation";
-export default function Signup() {
-    const [username,setUsername] = useState("");
-    const [password,setPassword] = useState("");
+
+export default function LoginUpRoute() {
+    const [user,setUser] = useState<User>({userName:"",password:""});
     const router = useRouter();
+    const {state,setState} = useAppContext();
+    // helper functions
+    const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+        const {name,value} = e.target;
+        setUser({
+            ...user,
+            [name]: value
+        });
+    }
+
     const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const resp = await axios.post("http://localhost:3000/api/user/signin",{userName:username,password:password});
-        if (resp.status === 200) router.push("/");
+        try {
+            // trying to send the info for signup 
+            const resp = await axios.get('/api/user',{
+                headers:{
+                    username:user.userName,
+                    password:user.password
+                }
+            });
+            if (resp.data.error === false) {
+                setState(true);
+                router.push('/');
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
-    return (<form className="user_form" onSubmit={(e)=>handleSubmit(e)}>
-        <input 
-        type="username" 
-        placeholder="username" 
-        value={username} 
-        onChange={(e) => setUsername(e.target.value)}/>
-        <input 
-        type="password"
-        placeholder="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}/>
-        <button type="submit">Login</button>
-    </form>)
-}
+
+    return <div className="loginForm">
+        <form onSubmit={(e)=>handleSubmit(e)}>
+            <input 
+            type="text" 
+            value={user.userName} 
+            name="userName"
+            placeholder="username"
+            onChange={(e)=>handleChange(e)}
+            />
+            <input 
+            type="password" 
+            value={user.password} 
+            name="password"
+            placeholder="password"
+            onChange={(e)=>handleChange(e)}
+            />
+            <button type="submit">Log In</button>
+        </form>
+    </div>;
+    }

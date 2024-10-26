@@ -9,3 +9,16 @@ export interface Course {
     author:string,
     __v: number
 }
+export interface User {
+    userName:string,
+    password:string
+}
+
+export interface tokenInterface {
+    userName:string
+}
+
+export interface tokenVerificationInterface {
+    error:boolean,
+    message:string
+}

@@ -1,14 +1,19 @@
-"use client"
+"use client";
 import axios from "axios";
 import { ObjectId } from "mongodb";
-async function handleClick (id:ObjectId) {
-    // now i just need to create a route to delete the course card
-    const data = await axios.post("http://localhost:3000/api/course/delete_course",id);
-    console.log(data.data);
+import { getToken } from "../utility/client_utility";
+
+async function handleClick(id: ObjectId) {
+    const token = getToken();
+    const response = await axios.delete("/api/course", {
+        headers: {
+            id: id.toString(),
+            token: token,
+        },
+    });
+    console.log(response.data);
 }
 
-export default function DeleteCourseButton ({id}:{id:ObjectId}) {
-    return (
-        <button onClick={() => handleClick(id)}>Delete</button>
-    );
+export default function DeleteCourseButton({ id }: { id: ObjectId }) {
+    return <button onClick={() => handleClick(id)}>Delete</button>;
 }

@@ -4,15 +4,18 @@ import axios from 'axios';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; // Import the CSS
-
+import 'react-toastify/dist/ReactToastify.css';
+import Cookies from "js-cookie";
 const UpdateCoursePage = () => {
+
+
     const { id } = useParams(); // Get the 'id' from the route
     const [course_info, setCourseInfo] = useState<Course | undefined>(); // Properly typing state
+    const token = Cookies.get('token');
 
     const get_data = async (id: string) => {
         try {
-            const response = await axios.get(`http://localhost:3000/api/course/get_course?id=${id}`); // Correct usage
+            const response = await axios.get(`/api/course?id=${id}`); // Correct usage
             const course: Course = response.data.data;
             setCourseInfo(course); // Set the course data
         } catch (error) {
@@ -35,7 +38,8 @@ const UpdateCoursePage = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const resp = await axios.post("http://localhost:3000/api/course/update_course", course_info);
+            const resp = await axios.put("/api/course",
+                {course_info,token:token});
             if (resp.status === 200) {
                 toast.success("Course updated successfully!"); // Success toast
             } else {

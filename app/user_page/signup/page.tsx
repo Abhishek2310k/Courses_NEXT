@@ -1,25 +1,49 @@
-"use client"
-import { useState } from "react"
+"use client" 
+import { User } from "@/app/Interface/interfaces";
 import axios from "axios";
-export default function Signup() {
-    const [username,setUsername] = useState("");
-    const [password,setPassword] = useState("");
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function SingUpRoute() {
+    const [user,setUser] = useState<User>({userName:"",password:""});
+    const router = useRouter();
+    // helper functions
+    const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+        const {name,value} = e.target;
+        setUser({
+            ...user,
+            [name]: value
+        });
+    }
+
     const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const resp = await axios.post("http://localhost:3000/api/user/signup",{userName:username,password:password});
-        console.log(resp.data);
+        try {
+            // trying to send the info for signup 
+            const resp = await axios.post('/api/user',user);
+            if (resp.data.error === false) router.push('/user_page/login'); 
+        } catch (error) {
+            console.log(error);
+        }
     }
-    return (<form className="user_form" onSubmit={(e)=>handleSubmit(e)}>
-        <input 
-        type="username" 
-        placeholder="username" 
-        value={username} 
-        onChange={(e) => setUsername(e.target.value)}/>
-        <input 
-        type="password"
-        placeholder="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}/>
-        <button type="submit">signup</button>
-    </form>)
-}
+
+    return <div className="signupForm">
+        <form onSubmit={(e)=>handleSubmit(e)}>
+            <input 
+            type="text" 
+            value={user.userName} 
+            name="userName"
+            placeholder="username"
+            onChange={(e)=>handleChange(e)}
+            />
+            <input 
+            type="password" 
+            value={user.password} 
+            name="password"
+            placeholder="password"
+            onChange={(e)=>handleChange(e)}
+            />
+            <button type="submit">Sign Up</button>
+        </form>
+    </div>;
+    }

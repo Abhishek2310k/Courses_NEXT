@@ -1,10 +1,2 @@
-- today's task :
-
-- make button for deleting the course 
-- add login and signup functionality with complete cookies setup
-- change the appearence of update and delete button according to the user used
-- if we are on some users login page then only we display the delete button for the courses he has added
-
-== we need to add cookies on the server side in case of nextjs as it is considered faster. Because of direct access to the informatino of the cookie by the server
-
-- need to figure out how is this server side cookies working
+- need to add middleware for token verification
+- also need to create an admin panel for all of the courses thus created

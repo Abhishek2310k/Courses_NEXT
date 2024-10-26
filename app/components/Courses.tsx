@@ -6,8 +6,16 @@ async function get_data() {
   return data;
 }
 
-export default async function Courses() {
-  let data = await get_data();
+async function get_data_userName(userName:string) {
+  const data:Course[] = await courseModel.find({userName:userName});
+  return data;
+}
+
+export default async function Courses({userName} : {userName:string}) {
+  let data;
+  if (userName === undefined)
+    data = await get_data();
+  else data = await get_data_userName(userName);
   // console.log(data);
   return (
     <div>
