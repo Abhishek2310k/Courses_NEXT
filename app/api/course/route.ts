@@ -6,22 +6,13 @@ import { tokenVerificationInterface } from "@/app/Interface/interfaces";
 import { ObjectId } from "mongodb";
 import { Course} from "@/app/Interface/interfaces";
 import mongoose from "mongoose";
+import userModel from "@/app/models/user";
+import { returnData } from "../utility";
 
 export async function POST(req: NextRequest) {
   try {
     const temp_obj = await req.json();
-    const { info: course, token } = temp_obj;
-    if (!token || token === "") {
-      return NextResponse.json({
-        message: "Authorization token is missing or invalid",
-        error: true,
-      });
-    }
-    
-    const tokenVerification:tokenVerificationInterface = verifyToken({token,course});
-    if (tokenVerification.error === true) {
-      NextResponse.json(tokenVerification);
-    }
+    const { info: course,} = temp_obj;
     const data = new courseModel(course);
     await data.save();
 
@@ -42,15 +33,11 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
     try {
         const temp_id = req.headers.get("id");
-        const token = req.headers.get("token");
-        if (temp_id === null || token === null) return NextResponse.json({message:"something"});
+        if (temp_id === null) return NextResponse.json({message:"something"});
         const id = new ObjectId(temp_id);
         const course:any = await courseModel.findById({_id:id});
         // no need to check if the course exists
         if (course === null) return NextResponse.json({error:false,message:"course already deleted"});
-        const tokenVerification:tokenVerificationInterface = verifyToken({token,course});
-        
-
         if (!ObjectId.isValid(id)) {
             return NextResponse.json({ error: true, message: "Invalid course ID" }, { status: 400 });
         }
@@ -73,23 +60,9 @@ export async function DELETE(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
   const temp_obj = await req.json();
-  console.log(temp_obj);
   const course:Course = temp_obj.course_info;
-  const token:string = temp_obj.token
   const id = course._id;
   const object_id = new mongoose.Types.ObjectId(id);
-
-  if (!token || token === "") {
-    return NextResponse.json({
-      message: "Authorization token is missing or invalid",
-      error: true,
-    });
-  }
-  
-  const tokenVerification:tokenVerificationInterface = verifyToken({token,course});
-  if (tokenVerification.error === true) {
-    NextResponse.json(tokenVerification);
-  }
 
   console.log(object_id);
   await courseModel.findByIdAndUpdate({ _id: id }, { $set: course });
@@ -106,13 +79,36 @@ export async function PUT(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("id");
   const userName = req.nextUrl.searchParams.get("userName");
+  const bought = req.nextUrl.searchParams.get("bought");
+
+  console.log(userName,bought);
+
+  if (bought) {
+    // If bought header is provided, return all of the courses bought by a particular user
+    const user = await userModel.findOne({ userName: userName });
+    if (user === null || user === undefined) {
+        return returnData({ error: true, message: "User not defined" });
+    } 
+
+    // Here we need to find all of the courses in the list of the courses bought
+    const courses = await courseModel.find({ _id: { $in: user.coursesBought } });
+
+    // Return the found courses
+    return returnData({ error: false, data: courses });
+  }
+
   if (!id && !userName) {
+    console.log("aaya");
+    const data = await courseModel.find();
     return NextResponse.json({
       error: true,
       message: "Invalid or missing ID parameter",
+      data:data
     });
   }
 
+
+  // this is used for showing all of the courses belonging to a particular user
   if (!id) {
     try {
         const data = await courseModel.find({author:userName});
@@ -122,6 +118,8 @@ export async function GET(req: NextRequest) {
     }
   }
 
+
+  // used for returning all the info about a particular course
   let obj_id;
   obj_id = new mongoose.Types.ObjectId(id);
 

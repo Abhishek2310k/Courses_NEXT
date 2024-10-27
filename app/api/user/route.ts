@@ -4,6 +4,7 @@ import { genSaltSync,hashSync } from "bcrypt";
 import { compareSync } from "bcrypt";
 import jwt from 'jsonwebtoken';
 import { returnData } from "../utility";
+import { Types } from "mongoose";
 
 
 // function for signing up the user
@@ -47,5 +48,25 @@ export async function GET (req:NextRequest) {
     } catch (err) {
         console.log(err);
         return returnData({error:true,message:"some error has occured on the backend"});
+    }
+}
+
+export async function PUT (req:NextRequest) {
+    try {
+        // lets first get our info from req body
+        const {userid,courseid} = await req.json();
+        const userObjectId = new Types.ObjectId(userid);
+        const courseObjectId = new Types.ObjectId(courseid);
+        // we have both the userid and the course id in req we just need to get the course from the backend and add new value to that course
+        await userModel.findByIdAndUpdate(
+            userid,
+            { $push : {coursesBought : new Types.ObjectId(courseid)}},
+            {new : true}
+        );
+        return returnData({error:false,message:"nice"});
+    }
+    catch (err) {
+        console.log(err);
+        return returnData({error:true,message:"some error has occured while buying the course"})
     }
 }

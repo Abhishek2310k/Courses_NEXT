@@ -6,18 +6,17 @@ import { useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Cookies from "js-cookie";
+
 const UpdateCoursePage = () => {
-
-
-    const { id } = useParams(); // Get the 'id' from the route
-    const [course_info, setCourseInfo] = useState<Course | undefined>(); // Properly typing state
+    const { id } = useParams();
+    const [course_info, setCourseInfo] = useState<Course | undefined>();
     const token = Cookies.get('token');
 
     const get_data = async (id: string) => {
         try {
-            const response = await axios.get(`/api/course?id=${id}`); // Correct usage
+            const response = await axios.get(`/api/course?id=${id}`);
             const course: Course = response.data.data;
-            setCourseInfo(course); // Set the course data
+            setCourseInfo(course);
         } catch (error) {
             console.error("Error fetching course data:", error);
         }
@@ -38,16 +37,21 @@ const UpdateCoursePage = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const resp = await axios.put("/api/course",
-                {course_info,token:token});
+            const resp = await axios.put("/api/course", 
+                { course_info },
+                {
+                    headers: {
+                        "token": token
+                    }
+                }
+            );
             if (resp.status === 200) {
-                toast.success("Course updated successfully!"); // Success toast
+                toast.success("Course updated successfully!");
             } else {
                 toast.error("You don't have the correct access to update the course.");
             }
-        }
-        catch (err) {
-            toast.error("An error occurred while updating the course."); // Error toast
+        } catch (err) {
+            toast.error("An error occurred while updating the course.");
         }
     }
 
@@ -59,7 +63,7 @@ const UpdateCoursePage = () => {
 
     return (
         <div className="update_course_form">
-            <ToastContainer /> {/* ToastContainer to display the toast notifications */}
+            <ToastContainer />
             {course_info === undefined ? (
                 <h1>Loading...</h1>
             ) : (

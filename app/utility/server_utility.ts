@@ -15,7 +15,7 @@ export function verifyToken ({token,course} : {token:string,course:courseInterfa
     if (decodedToken.userName !== course.author) 
       return (
         {
-          message:"token not valid",
+          message:"user not valid",
           error:true
         }
     );

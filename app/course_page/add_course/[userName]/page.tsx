@@ -55,6 +55,7 @@ const AddCourse = () => {
         {
           headers: {
             "Content-Type": "application/json",
+            "token":info.token
           },
         },
       );

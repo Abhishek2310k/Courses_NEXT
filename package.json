@@ -18,7 +18,7 @@
     "card": "^2.5.4",
     "dotenv": "^16.4.5",
     "input": "^1.0.1",
-    "jose": "^5.9.3",
+    "jose": "^5.9.6",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
