@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import mongoose, { Document, Model, Schema } from "mongoose";
 export interface courseInterface {
   course_id: string;
@@ -6,6 +7,7 @@ export interface courseInterface {
   description?: string;
   no_of_users?: number;
   author: string;
+  users_bought?: string[];
 }
 export interface CourseDocument extends courseInterface, Document {
   createdAt: Date;
@@ -37,6 +39,11 @@ const courseSchema: Schema = new Schema({
     type: String,
     required: true,
   },
+  users_bought: {
+    type: [String],
+    required:false,
+    default: [],
+  }
 });
 
 const courseModel: Model<CourseDocument> =

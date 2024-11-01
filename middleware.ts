@@ -20,10 +20,11 @@ async function verifyToken({ token }: { token: string }) {
 }
 
 export const middleware = async (req: NextRequest) => {
-    if (req.method === 'POST' || req.method === 'PUT') {
+    if (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE') {
         try {
             const token = req.headers.get("token");
-            console.log("token = ",token);
+            const admin = req.headers.get("admin");
+            if (admin === '1') NextResponse.next();
             if (!token || token.trim() === "") {
                 return NextResponse.json({
                     message: "Authorization token is missing or invalid",

@@ -7,6 +7,7 @@ export interface Course {
     description:string,
     no_of_users:number,
     author:string,
+    users_bought:string[],
     __v: number
 }
 export interface User {

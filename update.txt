@@ -1,5 +1,0 @@
-- middleware part of the code is completed now we need to add
-    - buy course functionality
-        - we have created functionality for buying the courses
-        - we need to display the bought courses
-    - admin panel

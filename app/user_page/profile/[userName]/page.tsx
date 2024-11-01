@@ -14,17 +14,22 @@ const UserProfile = () => {
     const {userName} = useParams();
     const finalUserName = String(userName);
     const [data,setData] = useState<Course[]>();
+    const [boughtCourses,setBoughtCourses] = useState<Course[]>();
     const router = useRouter();
     const {state,setState} = useAppContext();
-    // we have the userName now lets get courses specific to this username
-    // i need to define a backend route for this because for courses we were able to define it without
     useEffect(()=>{
-        const gettingCourses = async () => {
+        const gettingAddedCourses = async () => {
             const resp = await axios.get(`/api/course?userName=${userName}`);
             setData(resp.data.courses);
         }
-        gettingCourses();
+        const gettingBoughtCourses = async () => {
+            const resp = await axios.get(`/api/course?userName=${userName}&bought=1`)
+            setBoughtCourses(resp.data.data);
+        }
+        gettingAddedCourses();
+        gettingBoughtCourses();
     },[]);
+    
 
     const handleLogOut = async (e:React.MouseEvent<HTMLButtonElement>) => {
         document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
@@ -34,10 +39,19 @@ const UserProfile = () => {
 
     return (
         <div className="user_profile">
-            <div className="addedCourses">
+            <div className="profile_courses addedCourses">
+                <h1>Added Courses</h1>
             {data?.length === 0 ? <h1>No added Course</h1> : 
                 data?.map((course,index) => {
-                    return <Course_card key = {index} course={course}/>
+                    return <Course_card key = {index} course={course} buy_display={false}/>
+                })
+            }
+            </div>
+            <div className="profile_courses boughtCourses">
+                <h1>Bought Courses</h1>
+            {boughtCourses?.length === 0 ? <h1>No Course Bought</h1> : 
+                boughtCourses?.map((course,index) => {
+                    return <Course_card key = {index} course={course} buy_display={false} update_display={false} delete_display={false}/>
                 })
             }
             </div>

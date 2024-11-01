@@ -8,6 +8,7 @@ import { Course} from "@/app/Interface/interfaces";
 import mongoose from "mongoose";
 import userModel from "@/app/models/user";
 import { returnData } from "../utility";
+import { jwtDecode } from "jwt-decode";
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,19 +33,24 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
     try {
+        console.log("delete function is called");
         const temp_id = req.headers.get("id");
+        const token = req.headers.get("token");
+        if (token === null) return returnData({error:true,message:"token not provided"});
+        const decoded_token = jwtDecode<{userName:string}>(token);
+        console.log(decoded_token.userName);
         if (temp_id === null) return NextResponse.json({message:"something"});
         const id = new ObjectId(temp_id);
         const course:any = await courseModel.findById({_id:id});
-        // no need to check if the course exists
         if (course === null) return NextResponse.json({error:false,message:"course already deleted"});
+
         if (!ObjectId.isValid(id)) {
             return NextResponse.json({ error: true, message: "Invalid course ID" }, { status: 400 });
         }
 
         const _id = new ObjectId(id);
-        const result = await courseModel.findByIdAndDelete(_id);
-
+        
+        const result = await courseModel.deleteOne({author:decoded_token.userName,_id:id});
         if (!result) {
             return NextResponse.json({ error: true, message: "Course not found" }, { status: 404 });
         }
@@ -80,8 +86,6 @@ export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("id");
   const userName = req.nextUrl.searchParams.get("userName");
   const bought = req.nextUrl.searchParams.get("bought");
-
-  console.log(userName,bought);
 
   if (bought) {
     // If bought header is provided, return all of the courses bought by a particular user
