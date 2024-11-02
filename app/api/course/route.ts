@@ -6,9 +6,10 @@ import { tokenVerificationInterface } from "@/app/Interface/interfaces";
 import { ObjectId } from "mongodb";
 import { Course} from "@/app/Interface/interfaces";
 import mongoose from "mongoose";
-import userModel from "@/app/models/user";
+import userModel, { userInterface } from "@/app/models/user";
 import { returnData } from "../utility";
 import { jwtDecode } from "jwt-decode";
+import { User } from "@/app/Interface/interfaces";
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,11 +37,22 @@ export async function DELETE(req: NextRequest) {
         console.log("delete function is called");
         const temp_id = req.headers.get("id");
         const token = req.headers.get("token");
+        const admin = req.headers.get("admin");
+        if (temp_id === null) return NextResponse.json({message:"something"});
+        const id = new ObjectId(temp_id);
+        if (admin === '1') {
+          const _id = new ObjectId(id);
+        
+          const result = await courseModel.deleteOne({_id:id});
+          if (!result) {
+              return NextResponse.json({ error: true, message: "Course not found" }, { status: 404 });
+          }
+
+          return NextResponse.json({ error: false, message: "Course deleted successfully" });
+        }
         if (token === null) return returnData({error:true,message:"token not provided"});
         const decoded_token = jwtDecode<{userName:string}>(token);
         console.log(decoded_token.userName);
-        if (temp_id === null) return NextResponse.json({message:"something"});
-        const id = new ObjectId(temp_id);
         const course:any = await courseModel.findById({_id:id});
         if (course === null) return NextResponse.json({error:false,message:"course already deleted"});
 
@@ -65,13 +77,17 @@ export async function DELETE(req: NextRequest) {
 // for updating data
 export async function PUT(req: NextRequest) {
   try {
+  const token = req.headers.get("token");
+  if (token === null) return returnData({error:true,message:"token not provided"});
+  const decoded_token = jwtDecode<{userName:string}>(token);
+  const user:User = await userModel.findOne({userName:decoded_token.userName});
+  console.log(user);
   const temp_obj = await req.json();
   const course:Course = temp_obj.course_info;
   const id = course._id;
   const object_id = new mongoose.Types.ObjectId(id);
-
-  console.log(object_id);
-  await courseModel.findByIdAndUpdate({ _id: id }, { $set: course });
+  if (user.userName === course.author || user.admin === true)
+    await courseModel.findByIdAndUpdate({ _id: id }, { $set: course });
 
   return NextResponse.json({ error: false, message: "everything is good" });
 } catch (err) {
@@ -102,7 +118,7 @@ export async function GET(req: NextRequest) {
   }
 
   if (!id && !userName) {
-    console.log("aaya");
+    // console.log("aaya");
     const data = await courseModel.find();
     return NextResponse.json({
       error: true,

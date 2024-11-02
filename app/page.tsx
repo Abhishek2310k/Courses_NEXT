@@ -13,7 +13,7 @@ export default async function Home() {
 
     const most_bought: Course[] = await courseModel.find();
     most_bought.sort((a, b) => b.users_bought.length - a.users_bought.length);
-    const topCourses = most_bought.slice(0, 5);
+    const topCourses = most_bought.slice(0,5);
 
     // at the time of finding the courses i need to get the courses that were most recently added
 
@@ -28,7 +28,7 @@ export default async function Home() {
             </div>
             <div className="course-list most_bought">
                 <h1>Most Bought</h1>
-                {most_bought.map((course,index) => (
+                {topCourses.map((course,index) => (
                     <Course_card key={index} course={course} admin={0} delete_display={false} update_display={false}/>
                 ))}
             </div>

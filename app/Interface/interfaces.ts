@@ -12,7 +12,10 @@ export interface Course {
 }
 export interface User {
     userName:string,
-    password:string
+    password:string,
+    coursesBought:[ObjectId],
+    admin:boolean
+    _id:ObjectId
 }
 
 export interface tokenInterface {
